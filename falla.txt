@@ -1,3 +1,0 @@
-E T | E + T
-T -> F or T * F
-F  -> id

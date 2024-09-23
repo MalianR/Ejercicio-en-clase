@@ -21,10 +21,13 @@ def validar_gramatica(gramatica):
     reglas_invalidas = []
 
     for regla in reglas:
+        regla = regla.strip()  # Quitamos espacios y saltos de línea
+        if not regla:  # Ignoramos líneas vacías
+            continue
         if '->' not in regla:
-            reglas_invalidas.append(regla.strip())
+            reglas_invalidas.append(regla)
         else:
-            reglas_validas.append(regla.strip())
+            reglas_validas.append(regla)
 
     if reglas_invalidas:
         print(f"\nAdvertencia: Se encontraron reglas mal formateadas y se ignorarán:")

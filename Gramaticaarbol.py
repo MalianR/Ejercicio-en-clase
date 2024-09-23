@@ -14,27 +14,36 @@ def cargar_gramatica_desde_archivo(ruta_archivo):
         print(f"Error al cargar el archivo: {e}")
         return None
 
-def validar_gramatica(gramatica):
-    """Valida que las reglas gramaticales sigan el formato A -> B y retorna las reglas correctas."""
+def validar_y_corregir_gramatica(gramatica):
+    """Valida las reglas gramaticales y corrige las que no cumplen el formato A -> B."""
     reglas = gramatica.split('\n')
     reglas_validas = []
+    reglas_corregidas = []
     reglas_invalidas = []
 
     for regla in reglas:
-        regla = regla.strip()  # Quitamos espacios y saltos de línea
-        if not regla:  # Ignoramos líneas vacías
+        regla = regla.strip()
+        if not regla:
             continue
-        if '->' not in regla:
-            reglas_invalidas.append(regla)
-        else:
+        if '->' in regla:
             reglas_validas.append(regla)
+        else:
+            # Intentar corregir la regla mal formateada
+            partes = regla.split()
+            if len(partes) > 1:
+                simbolo_izquierdo = partes[0]
+                simbolos_derechos = ' '.join(partes[1:])
+                regla_corregida = f"{simbolo_izquierdo} -> {simbolos_derechos}"
+                reglas_corregidas.append(regla_corregida)
+            else:
+                reglas_invalidas.append(regla)
 
     if reglas_invalidas:
-        print(f"\nAdvertencia: Se encontraron reglas mal formateadas y se ignorarán:")
+        print(f"\nSe encontraron reglas que no pudieron ser corregidas y se ignorarán:")
         for regla in reglas_invalidas:
             print(f" - {regla}")
 
-    return reglas_validas
+    return reglas_validas + reglas_corregidas
 
 def extraer_simbolo_inicial(gramatica):
     """Extrae el símbolo inicial de la primera regla gramatical válida."""
@@ -46,9 +55,8 @@ def extraer_simbolo_inicial(gramatica):
 
 def generar_arbol_derivaciones(gramatica):
     """Genera el árbol de derivaciones basado en las reglas gramaticales."""
-    G = nx.DiGraph()  # Creamos un grafo dirigido vacío
+    G = nx.DiGraph()
     
-    # Extraemos el símbolo inicial
     simbolo_inicial = extraer_simbolo_inicial(gramatica)
     if not simbolo_inicial:
         print("Error: No se encontró un símbolo inicial.")
@@ -56,25 +64,21 @@ def generar_arbol_derivaciones(gramatica):
     
     G.add_node(simbolo_inicial)
     
-    # Validamos y procesamos cada regla en la gramática
-    for regla in validar_gramatica(gramatica):
+    for regla in validar_y_corregir_gramatica(gramatica):
         regla = regla.replace('"', '')
-        if '->' in regla:
-            simbolo_izquierdo, simbolos_derechos = regla.split('->')
-            simbolo_izquierdo = simbolo_izquierdo.strip()
-            simbolos_derechos = simbolos_derechos.split('|')
-            
-            # Agregamos los nodos y aristas para cada símbolo derecho
-            for simbolo_derecho in simbolos_derechos:
-                simbolos = simbolo_derecho.strip().split()  # Manejo de múltiples símbolos
-                for simbolo in simbolos:
-                    G.add_node(simbolo)
-                    G.add_edge(simbolo_izquierdo, simbolo)
+        simbolo_izquierdo, simbolos_derechos = regla.split('->')
+        simbolo_izquierdo = simbolo_izquierdo.strip()
+        simbolos_derechos = simbolos_derechos.split('|')
+        
+        for simbolo_derecho in simbolos_derechos:
+            simbolos = simbolo_derecho.strip().split()
+            for simbolo in simbolos:
+                G.add_node(simbolo)
+                G.add_edge(simbolo_izquierdo, simbolo)
 
     return G
 
 def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones", guardar=False, ruta_salida="arbol_derivaciones.png"):
-    """Visualiza el árbol de derivaciones y, opcionalmente, guarda la imagen."""
     if G is None:
         print("No se puede visualizar un árbol vacío.")
         return
@@ -92,7 +96,6 @@ def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones", guardar=Fa
         print(f"El árbol de derivaciones ha sido guardado en '{ruta_salida}'.")
 
 def mostrar_derivaciones(G):
-    """Muestra las derivaciones de cada nodo."""
     if G is None:
         print("No hay derivaciones que mostrar.")
         return
@@ -111,15 +114,9 @@ def mostrar_derivaciones(G):
 ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Gramaa.txt"
 ruta_archivo_falla = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Falla.txt"
 
-# Intentar cargar la gramática
 gramatica = cargar_gramatica_desde_archivo(ruta_archivo_falla)
 
 if gramatica:
-    # Generar el árbol de derivaciones
     G = generar_arbol_derivaciones(gramatica)
-
-    # Visualizar el árbol y guardar la imagen
-    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática (posiblemente con errores)", guardar=True)
-
-    # Mostrar las derivaciones
+    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática (con correcciones)", guardar=True)
     mostrar_derivaciones(G)

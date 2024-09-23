@@ -42,7 +42,10 @@ Ir a la linea 76 del codigo donde esta la ubicacion de el .txt y modificar la ub
 ```bash
 ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Gramaa.txt"
 ```
-
+De igual forma la ruta del archivo del .txt Falla 
+```bash
+ruta_archivo_falla = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Falla.txt"
+```
 5. Ejecutar el script
 Para generar el árbol de derivaciones a partir de la gramática que definiste en el archivo Gramma.txt, puedes ejecutar el siguiente comando en la terminal:
 ```bash

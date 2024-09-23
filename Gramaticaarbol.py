@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def cargar_gramatica_desde_archivo(ruta_archivo):
-    # Intentar abrir el archivo y manejar posibles errores
+    """Lee el archivo de gramática y retorna su contenido."""
     try:
         with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
             gramatica = archivo.read()
@@ -14,23 +14,37 @@ def cargar_gramatica_desde_archivo(ruta_archivo):
         print(f"Error al cargar el archivo: {e}")
         return None
 
+def validar_gramatica(gramatica):
+    """Valida que las reglas gramaticales sigan el formato A -> B."""
+    reglas = gramatica.split('\n')
+    for regla in reglas:
+        if '->' not in regla:
+            print(f"Advertencia: Regla mal formateada (se espera '->'): {regla.strip()}")
+    return reglas
+
+def extraer_simbolo_inicial(gramatica):
+    """Extrae el símbolo inicial de la primera regla gramatical."""
+    for regla in gramatica.split('\n'):
+        if '->' in regla:
+            simbolo_inicial = regla.split('->')[0].strip()
+            return simbolo_inicial
+    return None
+
 def generar_arbol_derivaciones(gramatica):
-    # Creamos un grafo dirigido vacío
-    G = nx.DiGraph()
+    """Genera el árbol de derivaciones basado en las reglas gramaticales."""
+    G = nx.DiGraph()  # Creamos un grafo dirigido vacío
     
-    # Agregamos el nodo inicial (símbolo inicial de la gramática)
-    simbolo_inicial = "E"
+    # Extraemos el símbolo inicial
+    simbolo_inicial = extraer_simbolo_inicial(gramatica)
+    if not simbolo_inicial:
+        print("Error: No se encontró un símbolo inicial.")
+        return None
+    
     G.add_node(simbolo_inicial)
     
-    # Procesamos cada regla en la gramática, ignorando líneas vacías
-    for regla in gramatica.split('\n'):
+    # Procesamos cada regla en la gramática
+    for regla in validar_gramatica(gramatica):
         regla = regla.strip().replace('"', '')
-        
-        # Ignoramos las reglas vacías o mal formateadas
-        if not regla:
-            continue
-        
-        # Verificamos que la regla tenga el separador "->"
         if '->' in regla:
             simbolo_izquierdo, simbolos_derechos = regla.split('->')
             simbolo_izquierdo = simbolo_izquierdo.strip()
@@ -38,30 +52,39 @@ def generar_arbol_derivaciones(gramatica):
             
             # Agregamos los nodos y aristas para cada símbolo derecho
             for simbolo_derecho in simbolos_derechos:
-                simbolo_derecho = simbolo_derecho.strip()
-                if simbolo_derecho:  # Evitar agregar nodos vacíos
-                    G.add_node(simbolo_derecho)
-                    G.add_edge(simbolo_izquierdo, simbolo_derecho)
+                simbolos = simbolo_derecho.strip().split()  # Manejo de múltiples símbolos
+                for simbolo in simbolos:
+                    G.add_node(simbolo)
+                    G.add_edge(simbolo_izquierdo, simbolo)
         else:
             print(f"Regla mal formateada (se espera '->'): {regla}")
     
     return G
 
-def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones"):
-    # Generar una disposición de los nodos usando spring_layout
-    pos = nx.spring_layout(G)  
+def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones", guardar=False, ruta_salida="arbol_derivaciones.png"):
+    """Visualiza el árbol de derivaciones y, opcionalmente, guarda la imagen."""
+    if G is None:
+        print("No se puede visualizar un árbol vacío.")
+        return
     
-    # Dibujamos el grafo con configuraciones mejoradas
+    pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels=True, node_color='lightblue', 
             node_size=1500, font_size=10, arrowsize=20, arrowstyle='->')
     
-    # Configuraciones adicionales del gráfico
     plt.title(titulo)
-    plt.axis('off')  # Ocultar las marcas del eje
+    plt.axis('off')
     plt.show()
+    
+    if guardar:
+        plt.savefig(ruta_salida)
+        print(f"El árbol de derivaciones ha sido guardado en '{ruta_salida}'.")
 
 def mostrar_derivaciones(G):
-    # Mostrar las derivaciones desde cada nodo
+    """Muestra las derivaciones de cada nodo."""
+    if G is None:
+        print("No hay derivaciones que mostrar.")
+        return
+    
     print("\nResultados de derivación:")
     for start_node in G.nodes():
         successors = list(G.successors(start_node))
@@ -82,8 +105,8 @@ if gramatica:
     # Generar el árbol de derivaciones
     G = generar_arbol_derivaciones(gramatica)
 
-    # Visualizar el árbol
-    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática matemática")
+    # Visualizar el árbol y guardar la imagen
+    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática matemática", guardar=True)
 
     # Mostrar las derivaciones
     mostrar_derivaciones(G)

@@ -2,10 +2,17 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def cargar_gramatica_desde_archivo(ruta_archivo):
-    # Abrir el archivo y leer el contenido
-    with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
-        gramatica = archivo.read()
-    return gramatica
+    # Intentar abrir el archivo y manejar posibles errores
+    try:
+        with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
+            gramatica = archivo.read()
+        return gramatica
+    except FileNotFoundError:
+        print(f"Error: El archivo '{ruta_archivo}' no se encuentra.")
+        return None
+    except Exception as e:
+        print(f"Error al cargar el archivo: {e}")
+        return None
 
 def generar_arbol_derivaciones(gramatica):
     # Creamos un grafo dirigido vacío
@@ -32,8 +39,9 @@ def generar_arbol_derivaciones(gramatica):
             # Agregamos los nodos y aristas para cada símbolo derecho
             for simbolo_derecho in simbolos_derechos:
                 simbolo_derecho = simbolo_derecho.strip()
-                G.add_node(simbolo_derecho)
-                G.add_edge(simbolo_izquierdo, simbolo_derecho)
+                if simbolo_derecho:  # Evitar agregar nodos vacíos
+                    G.add_node(simbolo_derecho)
+                    G.add_edge(simbolo_izquierdo, simbolo_derecho)
         else:
             print(f"Regla mal formateada (se espera '->'): {regla}")
     
@@ -50,8 +58,6 @@ def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones"):
     # Configuraciones adicionales del gráfico
     plt.title(titulo)
     plt.axis('off')  # Ocultar las marcas del eje
-    
-    # Removido tight_layout para evitar advertencias
     plt.show()
 
 def mostrar_derivaciones(G):
@@ -67,14 +73,17 @@ def mostrar_derivaciones(G):
             print(f"\nNo hay derivaciones desde {start_node}")
 
 # Ejemplo de uso
-ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Gramaa.txt"
+ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Gramaa.txt"
+
+# Intentar cargar la gramática
 gramatica = cargar_gramatica_desde_archivo(ruta_archivo)
 
-# Generar el árbol de derivaciones
-G = generar_arbol_derivaciones(gramatica)
+if gramatica:
+    # Generar el árbol de derivaciones
+    G = generar_arbol_derivaciones(gramatica)
 
-# Visualizar el árbol
-visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática matemática")
+    # Visualizar el árbol
+    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática matemática")
 
-# Mostrar las derivaciones
-mostrar_derivaciones(G)
+    # Mostrar las derivaciones
+    mostrar_derivaciones(G)

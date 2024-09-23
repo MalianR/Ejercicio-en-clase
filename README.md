@@ -37,6 +37,12 @@ E: Expresión
 T: Término
 F: Factor
 
+(**Update**)
+Ir a la linea 76 del codigo donde esta la ubicacion de el .txt y modificar la ubicacion de donde esta ubicado este 
+```bash
+ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Gramaa.txt"
+```
+
 5. Ejecutar el script
 Para generar el árbol de derivaciones a partir de la gramática que definiste en el archivo Gramma.txt, puedes ejecutar el siguiente comando en la terminal:
 ```bash

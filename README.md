@@ -27,15 +27,15 @@ pip install networkx matplotlib
 4. Crear o modificar el archivo de gramática (Gramma.txt)
 El archivo de entrada de la gramática debe estar en el mismo directorio que el archivo Python y debe tener el siguiente formato (El txt tiene esta gramatica):
 ```bash
-E -> E + T | E - T | T
-T -> T * F | T / F | F
-F -> ( E ) | n
+E -> T | E + T
+T -> F | T * F
+F -> ( E ) | id
 ```
 Este archivo define una gramática que sigue las siguientes reglas:
 
-E: Expresión
-T: Término
-F: Factor
+E se deriva a T o a E + T.
+T se deriva a F o a T * F.
+F se deriva a un paréntesis con una expresión ( E ) o a un identificador id.
 
 (**Update**)
 Ir a la linea 76 del codigo donde esta la ubicacion de el .txt y modificar la ubicacion de donde esta ubicado este 
@@ -47,6 +47,10 @@ ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase 
 Para generar el árbol de derivaciones a partir de la gramática que definiste en el archivo Gramma.txt, puedes ejecutar el siguiente comando en la terminal:
 ```bash
 python Gramaticaarbol.py Gramma.txt
+```
+**O**
+```bash
+python Gramaticaarbol.py Falla.txt
 ```
 Donde:
   Gramaticaarbol.py es el archivo que contiene el código Python.
@@ -65,31 +69,22 @@ Un ejemplo de salida en la consola podría ser:
 
 Aparte del grafico utilizando networkx en la terminal generaria algo parecido a lo siguiente 
 ```bash
+El árbol de derivaciones ha sido guardado en 'arbol_derivaciones.png'.
+
 Resultados de derivación:
 
-Derivaciones desde E:
-- E -> E + T
-- E -> E - T
-- E -> T
-
-No hay derivaciones desde E + T
-
-No hay derivaciones desde E - T
-
 Derivaciones desde T:
-- T -> T * F
-- T -> T / F
 - T -> F
-
-No hay derivaciones desde T * F
-
-No hay derivaciones desde T / F
+- T -> or
+- T -> T
+- T -> *
 
 Derivaciones desde F:
-- F -> ( E )
-- F -> n
+- F -> id
 
-No hay derivaciones desde ( E )
+No hay derivaciones desde or
 
-No hay derivaciones desde n
+No hay derivaciones desde *
+
+No hay derivaciones desde id
 ```

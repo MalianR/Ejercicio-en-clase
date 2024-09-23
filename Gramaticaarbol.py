@@ -15,15 +15,26 @@ def cargar_gramatica_desde_archivo(ruta_archivo):
         return None
 
 def validar_gramatica(gramatica):
-    """Valida que las reglas gramaticales sigan el formato A -> B."""
+    """Valida que las reglas gramaticales sigan el formato A -> B y retorna las reglas correctas."""
     reglas = gramatica.split('\n')
+    reglas_validas = []
+    reglas_invalidas = []
+
     for regla in reglas:
         if '->' not in regla:
-            print(f"Advertencia: Regla mal formateada (se espera '->'): {regla.strip()}")
-    return reglas
+            reglas_invalidas.append(regla.strip())
+        else:
+            reglas_validas.append(regla.strip())
+
+    if reglas_invalidas:
+        print(f"\nAdvertencia: Se encontraron reglas mal formateadas y se ignorarán:")
+        for regla in reglas_invalidas:
+            print(f" - {regla}")
+
+    return reglas_validas
 
 def extraer_simbolo_inicial(gramatica):
-    """Extrae el símbolo inicial de la primera regla gramatical."""
+    """Extrae el símbolo inicial de la primera regla gramatical válida."""
     for regla in gramatica.split('\n'):
         if '->' in regla:
             simbolo_inicial = regla.split('->')[0].strip()
@@ -42,9 +53,9 @@ def generar_arbol_derivaciones(gramatica):
     
     G.add_node(simbolo_inicial)
     
-    # Procesamos cada regla en la gramática
+    # Validamos y procesamos cada regla en la gramática
     for regla in validar_gramatica(gramatica):
-        regla = regla.strip().replace('"', '')
+        regla = regla.replace('"', '')
         if '->' in regla:
             simbolo_izquierdo, simbolos_derechos = regla.split('->')
             simbolo_izquierdo = simbolo_izquierdo.strip()
@@ -56,9 +67,7 @@ def generar_arbol_derivaciones(gramatica):
                 for simbolo in simbolos:
                     G.add_node(simbolo)
                     G.add_edge(simbolo_izquierdo, simbolo)
-        else:
-            print(f"Regla mal formateada (se espera '->'): {regla}")
-    
+
     return G
 
 def visualizar_arbol_derivaciones(G, titulo="Árbol de derivaciones", guardar=False, ruta_salida="arbol_derivaciones.png"):
@@ -97,16 +106,17 @@ def mostrar_derivaciones(G):
 
 # Ejemplo de uso
 ruta_archivo = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Gramaa.txt"
+ruta_archivo_falla = r"C:\Users\jrinc\Desktop\Leng de prog y trans\Ejercicio en clase Netx\Falla.txt"
 
 # Intentar cargar la gramática
-gramatica = cargar_gramatica_desde_archivo(ruta_archivo)
+gramatica = cargar_gramatica_desde_archivo(ruta_archivo_falla)
 
 if gramatica:
     # Generar el árbol de derivaciones
     G = generar_arbol_derivaciones(gramatica)
 
     # Visualizar el árbol y guardar la imagen
-    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática matemática", guardar=True)
+    visualizar_arbol_derivaciones(G, "Árbol de derivaciones para la gramática (posiblemente con errores)", guardar=True)
 
     # Mostrar las derivaciones
     mostrar_derivaciones(G)
